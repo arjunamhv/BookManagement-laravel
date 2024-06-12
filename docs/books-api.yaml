@@ -1,0 +1,398 @@
+openapi: "3.0.2"
+info:
+  title: "Books API"
+  version: "1.0.0"
+servers:
+  - url: "http://localhost:8000"
+paths:
+  /api/books:
+    post:
+      summary: "Add new Book model to user's List of Books"
+      parameters:
+        - in: header
+          name: "Authorization"
+          schema:
+            type: "string"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StoreBookRequest"
+      responses:
+        201:
+          description: Add new Book success response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Add Book description message
+                    example: Book created
+                  book:
+                    $ref: "#/components/schemas/Book"
+        401:
+          description: User is not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        422:
+          description: Request body error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StoreBookResponse422"
+    get:
+      summary: Get list of book model added by user
+      parameters:
+        - in: header
+          name: "Authorization"
+          schema:
+            type: "string"
+        - in: query
+          name: title
+          schema:
+            type: "string"
+        - in: query
+          name: author
+          schema:
+            type: "string"
+        - in: query
+          name: publisher
+          schema:
+            type: "string"
+        - in: query
+          name: page
+          schema:
+            type: "integer"
+        - in: query
+          name: size
+          schema:
+            type: "integer"
+      responses:
+        200:
+          description: Return all books owned by authenticated user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Book"
+                      meta:
+        401:
+          description: User is unauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /api/books/{book_id}:
+    get:
+      summary: Get specific book model by Book ID
+      parameters:
+        - in: header
+          name: "Authorization"
+          schema:
+            type: "string"
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: "integer"
+      responses:
+        200:
+          description: Return specific book model by Book ID
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Book"
+        401:
+          description: User is not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        403:
+          description: User doesn't have right to do the request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        404:
+          description: Book ID not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    put:
+      summary: "Update user's Book model"
+      parameters:
+        - in: header
+          name: "Authorization"
+          schema:
+            type: "string"
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: "integer"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StoreBookRequest"
+      responses:
+        200:
+          description: Update Book success response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Update Book description message
+                    example: Book updated
+                  book:
+                    $ref: "#/components/schemas/Book"
+        401:
+          description: User is not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        403:
+          description: User doesn't have right to do the request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        422:
+          description: Request body error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StoreBookResponse422"
+    delete:
+      summary: Delete specific book model by Book ID
+      parameters:
+        - in: header
+          name: "Authorization"
+          schema:
+            type: "string"
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: "integer"
+      responses:
+        200:
+          description: Delete Book success response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: Book delete description message
+                    example: Book deleted
+                  book:
+                    $ref: "#/components/schemas/Book"
+        401:
+          description: User is not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        403:
+          description: User doesn't have right to do the request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        404:
+          description: Book ID not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+
+components:
+  schemas:
+    StoreBookRequest:
+      type: object
+      properties:
+        isbn:
+          type: string
+          description: Book ISBN Number
+          example: "9781491943533"
+        title:
+          type: string
+          description: Book title
+          example: Practical Modern JavaScript
+        subtitle:
+          type: string
+          description: Book subtitle
+          example: Dive into ES6 and the Future of JavaScript
+          nullable: true
+        author:
+          type: string
+          description: Book author
+          example: "Nicolás Bevacqua"
+        published:
+          type: string
+          description: "Book publish date (format: Y-m-d)"
+          example: "2017-07-16"
+        publisher:
+          type: string
+          description: Book publisher
+          example: "O Reilly Media"
+        pages:
+          type: number
+          description: Book total page
+          example: 334
+          nullable: true
+        description:
+          type: string
+          description: Book description
+          example: "To get the most out of modern JavaScript, you need learn the latest features of its parent specification, ECMAScript 6 (ES6). This book provides a highly practical look at ES6, without getting lost in the specification or its implementation details."
+          nullable: true
+        website:
+          type: string
+          description: Book Url
+          example: "https://github.com/mjavascript/practical-modern-javascript"
+          nullable: true
+    Book:
+      type: object
+      properties:
+        id:
+          type: number
+          description: Book ID
+          example: 1
+        user_id:
+          type: number
+          description: User ID
+          example: 1
+          nullable: false
+        isbn:
+          type: string
+          description: Book ISBN Number
+          example: "9781491943533"
+          nullable: false
+        title:
+          type: string
+          description: Book title
+          example: Practical Modern JavaScript
+          nullable: false
+
+        subtitle:
+          type: string
+          description: Book subtitle
+          example: Dive into ES6 and the Future of JavaScript
+          nullable: true
+        author:
+          type: string
+          description: Book author
+          example: "Nicolás Bevacqua"
+          nullable: false
+        published:
+          type: string
+          description: "Book publish date (format: Y-m-d)"
+          example: "2017-07-16"
+          nullable: true
+        publisher:
+          type: string
+          description: Book publisher
+          example: "O'Reilly Media"
+          nullable: false
+        pages:
+          type: number
+          description: Book total page
+          example: 334
+          nullable: true
+        description:
+          type: string
+          description: Book description
+          example: "To get the most out of modern JavaScript, you need learn the latest features of its parent specification, ECMAScript 6 (ES6). This book provides a highly practical look at ES6, without getting lost in the specification or its implementation details."
+          nullable: true
+        website:
+          type: string
+          description: Book Url
+          example: "https://github.com/mjavascript/practical-modern-javascript"
+          nullable: true
+        created_at:
+          type: string
+          description: Datetime when book model was created
+          example: "2023-01-12T14:50:05.000000Z"
+        updated_at:
+          type: string
+          description: Datetime when book model was last updated
+          example: "2023-01-12T14:50:05.000000Z"
+    StoreBookResponse422:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Details of error
+        errors:
+          type: object
+          properties:
+            isbn:
+              type: array
+              items:
+                type: string
+                description: isbn parameters error details
+            title:
+              type: array
+              items:
+                type: string
+                description: title parameters error details
+            subtitle:
+              type: array
+              items:
+                type: string
+                description: subtitle parameters error details
+            author:
+              type: array
+              items:
+                type: string
+                description: author parameters error details
+            published:
+              type: array
+              items:
+                type: string
+                description: published parameters error details
+            publisher:
+              type: array
+              items:
+                type: string
+                description: publisher parameters error details
+            pages:
+              type: array
+              items:
+                type: string
+                description: pages parameters error details
+            description:
+              type: array
+              items:
+                type: string
+                description: description parameters error details
+            website:
+              type: array
+              items:
+                type: string
+                description: website parameters error details
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message description
